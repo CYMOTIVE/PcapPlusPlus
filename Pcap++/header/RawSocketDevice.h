@@ -84,7 +84,7 @@ namespace pcpp
 		 * integrated in L3 level so the received packet contains only L3 (IP) layer and up.
 		 * @param[out] rawPacket An empty packet instance where the received packet data will be written to
 		 * @param[in] blocking Indicates whether to run in blocking or non-blocking mode. Default value is blocking
-		 * @param[in] timeout When in blocking mode, specifies the timeout [in seconds] to wait for a packet. If timeout expired
+		 * @param[in] timeout When in blocking mode, specifies the timeout [in milliseconds] to wait for a packet. If timeout expired
 		 * and no packets were captured the method will return RawSocketDevice#RecvTimeout. Zero or negative values mean no
 		 * timeout. The default value is no timeout
 		 * @return The method returns one on the following values:
@@ -101,7 +101,7 @@ namespace pcpp
 		 * receivePacket() method in blocking mode repeatedly until the timeout expires. All packets received successfully are
 		 * put into a packet vector
 		 * @param[out] packetVec The packet vector to add the received packet to
-		 * @param[in] timeout Timeout in seconds to receive packets on the raw socket
+		 * @param[in] timeout Timeout in milliseconds to receive packets on the raw socket
 		 * @param[out] failedRecv Number of receive attempts that failed
 		 * @return The number of packets received successfully
 		 */

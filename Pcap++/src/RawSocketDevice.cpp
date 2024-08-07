@@ -179,8 +179,8 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 
 	// set timeout on socket
 	struct timeval timeoutVal;
-	timeoutVal.tv_sec = timeout;
-	timeoutVal.tv_usec = 0;
+	timeoutVal.tv_sec = timeout / 1000;             // Convert milliseconds to seconds  
+    timeoutVal.tv_usec = (timeout % 1000) * 1000;  // Convert remainder to microseconds  
 	setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeoutVal, sizeof(timeoutVal));
 
 	int bufferLen = recv(fd, buffer, RAW_SOCKET_BUFFER_LEN, 0);
@@ -224,18 +224,19 @@ int RawSocketDevice::receivePackets(RawPacketVector& packetVec, int timeout, int
 		return 0;
 	}
 
-	long curSec, curNsec;
+	long curSec, curNsec, curMsec;
 	clockGetTime(curSec, curNsec);
 
 	int packetCount = 0;
 	failedRecv = 0;
 
-	long timeoutSec = curSec + timeout;
+	long timeoutMilliSec = (curSec * 1000) + (curNsec / 1000000) + timeout;
+	curMsec = (curSec * 1000) + (curNsec / 1000000);
 
-	while (curSec < timeoutSec)
+	while (curMsec < timeoutMilliSec)
 	{
 		RawPacket* rawPacket = new RawPacket();
-		if (receivePacket(*rawPacket, true, timeoutSec-curSec) == RecvSuccess)
+		if (receivePacket(*rawPacket, true, (timeoutMilliSec - curMsec)) == RecvSuccess)
 		{
 			packetVec.pushBack(rawPacket);
 			packetCount++;
@@ -247,6 +248,7 @@ int RawSocketDevice::receivePackets(RawPacketVector& packetVec, int timeout, int
 		}
 
 		clockGetTime(curSec, curNsec);
+		curMsec = (curSec * 1000) + (curNsec / 1000000);
 	}
 
 	return packetCount;
